@@ -7,6 +7,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
 
   return {
+    // GitHub Pages 部署在 /-nova-web/ 子路径下，由工作流传入 VITE_BASE；其他环境默认根路径
+    base: process.env.VITE_BASE || '/',
     plugins: [vue()],
     resolve: {
       alias: {

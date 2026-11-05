@@ -1,7 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
-  history: createWebHistory(),
+  // 跟随 vite 的 base，部署在子路径下时路由也能正确匹配
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',

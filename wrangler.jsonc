@@ -1,0 +1,10 @@
+{
+  // Cloudflare Workers 静态资源部署配置
+  "name": "nova-web",
+  "compatibility_date": "2026-11-03",
+  "assets": {
+    "directory": "./dist",
+    // 未匹配的路径回退到 index.html，供 vue-router history 模式使用
+    "not_found_handling": "single-page-application"
+  }
+}

@@ -1,36 +1,115 @@
-:root {
-  --text: #1f2937;
-  --bg: #fff;
-  --accent: #2563eb;
+/* finesse · register=brand · A=warm-paper+ink+single-yellow · B=800/400-tight-sans
+ * C=split-hero+ink-band+row-list · D=CSS-transitions+IO-gated-3d-ring · E=toy-cards-on-paper
+ * SOUL=7 SPECTACLE=5 DENSITY=4 */
 
-  font: 16px/1.5 system-ui, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  color-scheme: light dark;
+:root {
+  /* 统一设计变量：暖白纸面 + 墨色文字 + 唯一主色（品牌黄），页面各处复用 */
+  --bg: #f6f1e7;
+  --bg-elevated: #fbf8f1;
+  --ink: #1d1a14;
+  --ink-2: #2a251d;
+  --surface: rgba(40, 30, 10, 0.04);
+  --border: rgba(40, 30, 10, 0.12);
+  --border-strong: rgba(40, 30, 10, 0.22);
+  --text: #1d1a14;
+  --text-2: #554e41;
+  --text-3: #6f6858;
+  --on-ink: #f3ede1;
+  --on-ink-2: #b9b1a1;
+  --accent: #ffcf3f;
+  --accent-ink: #1d1a14;
+
+  --shadow-sm: 0 1px 2px rgba(60, 40, 10, 0.08);
+  --shadow: 0 18px 40px -18px rgba(60, 40, 10, 0.35);
+
+  --radius-sm: 10px;
+  --radius: 16px;
+  --radius-lg: 24px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --nav-h: 64px;
+
+  font: 16px/1.65 system-ui, -apple-system, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  color-scheme: light;
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #e5e7eb;
-    --bg: #16171d;
-    --accent: #60a5fa;
-  }
 }
 
 * {
   box-sizing: border-box;
 }
 
+/* clip 而不是 hidden：hidden 会生成滚动容器，导致 sticky 导航失效 */
+html,
+body {
+  overflow-x: clip;
+}
+
+html {
+  scroll-padding-top: var(--nav-h);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 body {
   margin: 0;
+  min-height: 100dvh;
+}
+
+/* 纸面颗粒：固定的极淡噪点层，去掉矢量的“塑料感” */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
 a {
-  color: var(--accent);
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-ink);
 }
 
 :focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
+}
+
+/* 尊重系统的“减少动态效果”设置 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

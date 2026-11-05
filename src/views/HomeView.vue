@@ -1,8 +1,8 @@
 <script setup lang="ts">
 // 后端尚未部署，首页使用 src/data/home.ts 的模拟数据；接口封装保留在 src/api/system.ts
 import FanDeck from '@/components/FanDeck.vue'
-import RingGallery from '@/components/RingGallery.vue'
-import { buddies, features, gallery } from '@/data/home'
+import FilmBand from '@/components/FilmBand.vue'
+import { buddies, features, films } from '@/data/home'
 </script>
 
 <template>
@@ -13,7 +13,7 @@ import { buddies, features, gallery } from '@/data/home'
       <a class="logo" href="#top" aria-label="Nova 首页"><span class="logo-mark" aria-hidden="true" />Nova</a>
       <nav aria-label="主导航">
         <a href="#buddies">助手</a>
-        <a href="#modules">模块</a>
+        <a href="#modules">影像</a>
         <a href="#features">特性</a>
       </nav>
     </div>
@@ -39,15 +39,9 @@ import { buddies, features, gallery } from '@/data/home'
       </div>
     </section>
 
-    <!-- 墨色反转带：环形模块画廊 -->
-    <section id="modules" class="band" aria-labelledby="modules-title">
-      <div class="band-inner">
-        <div class="band-head">
-          <h2 id="modules-title">一圈常用功能，<br />随手可达。</h2>
-          <p>{{ gallery.length }} 个模块围成一圈，鼠标移上去会停下。</p>
-        </div>
-        <RingGallery :items="gallery" />
-      </div>
+    <!-- 墨色反转带：莫比乌斯胶片带，点击照片在中央立起 -->
+    <section id="modules" class="band" aria-label="影像胶片带">
+      <FilmBand :items="films" />
     </section>
 
     <!-- 特性：横排条目，不用卡片 -->
@@ -235,31 +229,9 @@ h1 {
 /* 墨色反转带：横向铺满视口 */
 .band {
   margin: 0 calc(50% - 50vw);
-  padding: 112px 24px;
   background: var(--ink);
   color: var(--on-ink);
 }
-.band-inner {
-  display: grid;
-  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.4fr);
-  align-items: center;
-  gap: 32px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-.band-head h2 {
-  margin: 0 0 16px;
-  font-size: clamp(32px, 4.4vw, 56px);
-  font-weight: 800;
-  line-height: 1.02;
-  letter-spacing: -0.035em;
-}
-.band-head p {
-  max-width: 22em;
-  margin: 0;
-  color: var(--on-ink-2);
-}
-
 /* 特性：一列横排条目 */
 .features {
   padding: 120px 0 96px;
@@ -331,17 +303,11 @@ h1 {
     padding: 48px 0 32px;
     gap: 8px;
   }
-  .band-inner {
-    grid-template-columns: minmax(0, 1fr);
-  }
 }
 
 @media (max-width: 640px) {
   .nav nav a {
     padding: 10px 10px;
-  }
-  .band {
-    padding: 72px 20px;
   }
   .features {
     padding: 72px 0 64px;

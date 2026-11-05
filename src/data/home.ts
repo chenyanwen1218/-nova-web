@@ -16,21 +16,33 @@ export const buddies: Buddy[] = [
   { name: 'Peetie', tag: '贴心提醒', emoji: '🐙', colors: ['#ebc4f3', '#d8a5e8'] },
 ]
 
-export interface GalleryItem {
-  title: string
-  emoji: string
+export interface FilmFrame {
+  /** Unsplash 图片编号（经 Lorem Picsum 获取） */
+  id: string
+  author: string
+  alt: string
+  src: string
 }
 
-export const gallery: GalleryItem[] = [
-  { title: '仪表盘', emoji: '📊' },
-  { title: '工作流', emoji: '⚙️' },
-  { title: '知识库', emoji: '📚' },
-  { title: '消息中心', emoji: '💬' },
-  { title: '日程', emoji: '🗓️' },
-  { title: '团队', emoji: '👥' },
-  { title: '报表', emoji: '📈' },
-  { title: '设置', emoji: '🛠️' },
-]
+// 本地压缩后的 webp（480px 宽），由 Vite 处理成带 hash 的地址
+const filmFiles = import.meta.glob<string>('@/assets/film/*.webp', { eager: true, import: 'default' })
+const filmSrc = (id: string) =>
+  Object.entries(filmFiles).find(([path]) => path.endsWith(`-${id}.webp`))?.[1] ?? ''
+
+export const films: FilmFrame[] = [
+  { id: '1018', author: 'Andrew Ridley', alt: '云雾下的绿色山谷与蜿蜒公路' },
+  { id: '1019', author: 'Patrick Fore', alt: '暴风雨前阴沉的海面' },
+  { id: '1022', author: 'Vashishtha Jogi', alt: '绿色极光下的一棵松树剪影' },
+  { id: '1002', author: 'NASA', alt: '卫星视角的海岸线与浅海' },
+  { id: '1015', author: 'Alexey Topolyanskiy', alt: '峭壁之间的深蓝峡湾' },
+  { id: '1016', author: 'Philippe Wuyts', alt: '夕阳照亮的红色岩石峡谷' },
+  { id: '1039', author: 'Andrew Coelho', alt: '森林里从苔藓崖壁落下的瀑布' },
+  { id: '1044', author: 'Steve Carter', alt: '雾中河谷，一个人站在乱石滩上' },
+  { id: '1047', author: 'sergee bee', alt: '两侧红砖墙的城市小巷' },
+  { id: '1051', author: 'Ales Krivec', alt: '伸向湖面和远山的木栈桥' },
+  { id: '1069', author: 'Marat Gilyadzinov', alt: '深蓝海水中的橙色水母' },
+  { id: '110', author: 'Kenneth Thewissen', alt: '日落时草原上的几棵树' },
+].map((f) => ({ ...f, src: filmSrc(f.id) }))
 
 export interface Feature {
   title: string

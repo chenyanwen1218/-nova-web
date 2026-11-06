@@ -24,6 +24,20 @@ const router = createRouter({
       component: () => import('../views/GalleryView.vue'),
       meta: { title: '影像' },
     },
+    {
+      path: '/reading',
+      name: 'reading',
+      component: () => import('../views/ReadingView.vue'),
+      // 独立的深色驾驶舱页面，不显示全站页眉页脚
+      meta: { title: '阅读驾驶舱', bare: true },
+    },
+    {
+      path: '/fluid-glass',
+      name: 'fluid-glass',
+      component: () => import('../views/FluidGlassView.vue'),
+      // 独立的深色流体玻璃页面，不显示全站页眉页脚
+      meta: { title: '流体玻璃', bare: true },
+    },
     { path: '/about', name: 'about', component: () => import('../views/AboutView.vue'), meta: { title: '关于' } },
     {
       path: '/pricing',

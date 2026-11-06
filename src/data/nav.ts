@@ -2,6 +2,8 @@
 export const navLinks = [
   { to: '/buddies', label: '助手' },
   { to: '/gallery', label: '影像' },
+  { to: '/reading', label: '阅读驾驶舱' },
+  { to: '/fluid-glass', label: '流体玻璃' },
   { to: '/pricing', label: '方案' },
   { to: '/about', label: '关于' },
 ] as const

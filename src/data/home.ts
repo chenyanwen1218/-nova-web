@@ -1,19 +1,63 @@
 // 首页的模拟数据。后端上线后可替换为接口返回
 
 export interface Buddy {
+  /** 详情页地址里的标识，如 /buddies/orbit */
+  slug: string
   name: string
   tag: string
   emoji: string
   /** 卡片颜色 [亮面, 暗面]，五张卡保持同一组亮度和饱和度，看起来是一套角色 */
   colors: [string, string]
+  intro: string
+  skills: string[]
 }
 
 export const buddies: Buddy[] = [
-  { name: 'Cloudy', tag: '轻盈助手', emoji: '☁️', colors: ['#c3ccff', '#a3aef5'] },
-  { name: 'Dummies', tag: '自动化机器人', emoji: '🤖', colors: ['#ffbfb2', '#f59d8b'] },
-  { name: 'Orbit', tag: '数据洞察', emoji: '🪐', colors: ['#aee5e8', '#84d0d6'] },
-  { name: 'Sunny', tag: '灵感生成', emoji: '🌻', colors: ['#ffdc7a', '#f6c445'] },
-  { name: 'Peetie', tag: '贴心提醒', emoji: '🐙', colors: ['#ebc4f3', '#d8a5e8'] },
+  {
+    slug: 'cloudy',
+    name: 'Cloudy',
+    tag: '轻盈助手',
+    emoji: '☁️',
+    colors: ['#c3ccff', '#a3aef5'],
+    intro: '不打扰的随身记事本。随手记下的想法，它会帮你整理成清单和摘要。',
+    skills: ['随手速记', '会议纪要整理', '每日摘要'],
+  },
+  {
+    slug: 'dummies',
+    name: 'Dummies',
+    tag: '自动化机器人',
+    emoji: '🤖',
+    colors: ['#ffbfb2', '#f59d8b'],
+    intro: '把重复的点击交给它。按规则批量处理文件、表单和通知，跑完给你一份报告。',
+    skills: ['定时任务', '批量处理', '流程编排'],
+  },
+  {
+    slug: 'orbit',
+    name: 'Orbit',
+    tag: '数据洞察',
+    emoji: '🪐',
+    colors: ['#aee5e8', '#84d0d6'],
+    intro: '盯着关键指标，有异动时第一时间告诉你，并说清楚可能的原因。',
+    skills: ['指标看板', '异常提醒', '趋势分析'],
+  },
+  {
+    slug: 'sunny',
+    name: 'Sunny',
+    tag: '灵感生成',
+    emoji: '🌻',
+    colors: ['#ffdc7a', '#f6c445'],
+    intro: '卡住的时候找它聊聊。标题、文案、方案草稿，先给你几个方向再一起细化。',
+    skills: ['头脑风暴', '文案草拟', '方案对比'],
+  },
+  {
+    slug: 'peetie',
+    name: 'Peetie',
+    tag: '贴心提醒',
+    emoji: '🐙',
+    colors: ['#ebc4f3', '#d8a5e8'],
+    intro: '记得每个截止日期和约定。提前提醒，必要时帮你改期并通知相关的人。',
+    skills: ['日程提醒', '待办跟进', '智能改期'],
+  },
 ]
 
 export interface FilmFrame {
@@ -53,4 +97,17 @@ export const features: Feature[] = [
   { title: '轻量', desc: '核心交互全部用原生 CSS 实现，不引入重型动画库，首屏更快。' },
   { title: '一致', desc: '配色、间距、圆角统一成设计变量，整站风格一次定下来。' },
   { title: '可扩展', desc: '页面由独立组件拼装，后端接口就绪后即可替换模拟数据。' },
+]
+
+export interface Milestone {
+  when: string
+  title: string
+  done: boolean
+}
+
+export const roadmap: Milestone[] = [
+  { when: '2026 Q3', title: '视觉与交互定稿', done: true },
+  { when: '2026 Q4', title: '前端预览版上线', done: true },
+  { when: '2027 Q1', title: '后端服务接入，助手可用', done: false },
+  { when: '2027 Q2', title: '开放公测', done: false },
 ]

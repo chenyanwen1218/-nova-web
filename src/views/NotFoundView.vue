@@ -12,7 +12,8 @@
   display: grid;
   place-content: center;
   justify-items: center;
-  min-height: 100dvh;
+  /* 现在有全站页眉，扣掉导航高度 */
+  min-height: calc(100dvh - var(--nav-h));
   padding: 24px;
   text-align: center;
 }

@@ -103,6 +103,143 @@ p {
   outline-offset: 3px;
 }
 
+/* ---------- 全站共用的版式与组件，各页面直接复用 ---------- */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* 内页页头：小标签 + 大标题 + 导语 */
+.page-head {
+  padding: 72px 0 48px;
+}
+.page-head h1 {
+  margin: 16px 0 16px;
+  font-size: clamp(40px, 6vw, 80px);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: -0.045em;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+
+/* 唯一的主色强调：荧光笔式底色，而不是渐变文字 */
+.mark {
+  padding: 0 0.08em;
+  background: linear-gradient(transparent 52%, var(--accent) 52%, var(--accent) 92%, transparent 92%);
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.lead {
+  max-width: 30em;
+  margin: 0;
+  font-size: 18px;
+  color: var(--text-2);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform 0.3s var(--ease),
+    box-shadow 0.3s var(--ease),
+    background 0.2s;
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn-primary {
+  border: 2px solid var(--ink);
+  background: var(--accent);
+  color: var(--accent-ink);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+.btn-primary:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--ink);
+}
+.btn-ghost {
+  border: 1px solid var(--border-strong);
+  background: transparent;
+  color: var(--text);
+}
+.btn-ghost:hover {
+  background: var(--surface);
+}
+
+/* 横排条目列表：特性、路线图等共用 */
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border-strong);
+}
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+  align-items: baseline;
+  gap: 24px;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--border-strong);
+  transition: padding 0.4s var(--ease);
+}
+.row h3 {
+  margin: 0;
+  font-size: clamp(28px, 3.4vw, 44px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+.row p {
+  max-width: 34em;
+  margin: 0;
+  font-size: 17px;
+  color: var(--text-2);
+}
+@media (hover: hover) and (pointer: fine) {
+  .row:hover {
+    padding-left: 16px;
+  }
+  .row:hover h3 {
+    background: linear-gradient(transparent 55%, var(--accent) 55%, var(--accent) 90%, transparent 90%);
+  }
+}
+@media (max-width: 640px) {
+  .page-head {
+    padding: 48px 0 32px;
+  }
+  .row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    padding: 24px 0;
+  }
+}
+
 /* 尊重系统的“减少动态效果”设置 */
 @media (prefers-reduced-motion: reduce) {
   *,

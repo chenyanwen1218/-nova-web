@@ -86,9 +86,14 @@ function loop() {
 }
 
 function onDown(e: PointerEvent) {
-  pointerFocus = true
-  if (e.button !== 0) return
+  // 点自转开关不算拖动；先判断它，否则 pointerFocus 一直为 true，之后用 Tab 选帧不会转到正前方
   if ((e.target as HTMLElement).closest('.film-toggle')) return
+  pointerFocus = true
+  if (e.button !== 0) {
+    // 右键、中键不拖动，也不会走到 onUp：等这次按下引起的 focus 过去就复位
+    window.setTimeout(() => (pointerFocus = false))
+    return
+  }
   isDragging.value = true
   moved = false
   startX = lastX = e.clientX
@@ -147,8 +152,8 @@ function onFocus(i: number) {
   loop()
 }
 
-function toggleAutoplay() {
-  autoplay.value = !autoplay.value
+function setAutoplay(on: boolean) {
+  autoplay.value = on
   loop()
 }
 
@@ -206,15 +211,16 @@ onBeforeUnmount(() => {
             @click="pick(i)"
             @focus="onFocus(i)"
           >
+            <!-- 片孔条上的编号由 CSS 生成（data-l / data-r），见 .perf::before / ::after -->
             <span class="face front">
-              <span class="perf" aria-hidden="true"><i>{{ f.id }}</i><i>{{ f.no }}</i></span>
+              <span class="perf" aria-hidden="true" :data-l="f.id" :data-r="f.no"></span>
               <img :src="f.src" alt="" width="480" height="320" decoding="async" draggable="false" />
-              <span class="perf" aria-hidden="true"><i>RECTO</i><i>{{ f.deg }}°</i></span>
+              <span class="perf" aria-hidden="true" data-l="RECTO" :data-r="`${f.deg}°`"></span>
             </span>
             <span class="face back" aria-hidden="true">
-              <span class="perf"><i>{{ f.no }}</i><i>NOVA</i></span>
+              <span class="perf" :data-l="f.no" data-r="NOVA"></span>
               <img :src="f.src" alt="" width="480" height="320" decoding="async" draggable="false" />
-              <span class="perf"><i>VERSO</i><i>{{ f.id }}</i></span>
+              <span class="perf" data-l="VERSO" :data-r="f.id"></span>
             </span>
           </button>
         </li>
@@ -222,21 +228,15 @@ onBeforeUnmount(() => {
     </div>
 
     <p class="film-label" aria-hidden="true">
-      <b>NOVA 影像</b>
-      <span>莫比乌斯胶片带 · 照片来自 Unsplash</span>
+      <b>莫比乌斯胶片带</b>
+      <span>照片来自 Unsplash</span>
     </p>
 
-    <button
-      v-if="!reducedMotion"
-      type="button"
-      class="film-toggle"
-      :aria-pressed="autoplay"
-      aria-label="自动旋转"
-      @click="toggleAutoplay"
-    >
-      <span :class="{ on: autoplay }">自转</span>
-      <span :class="{ on: !autoplay }">暂停</span>
-    </button>
+    <!-- 两个独立按钮：读屏和语音控制都能直接说「自转」或「暂停」 -->
+    <div v-if="!reducedMotion" class="film-toggle" role="group" aria-label="胶片带旋转">
+      <button type="button" :class="{ on: autoplay }" :aria-pressed="autoplay" @click="setAutoplay(true)">自转</button>
+      <button type="button" :class="{ on: !autoplay }" :aria-pressed="!autoplay" @click="setAutoplay(false)">暂停</button>
+    </div>
 
     <div class="film-meta" aria-hidden="true">
       <span>
@@ -350,15 +350,24 @@ onBeforeUnmount(() => {
   background-position: 0 50%;
   background-repeat: repeat-x;
 }
-.perf i {
+/* 编号只是胶片边上的装饰。写成 DOM 文字的话，它会算进按钮的可见文字，
+   和按钮名称（照片描述 + 摄影者）对不上（WCAG 2.5.3 名称含可见标签） */
+.perf::before,
+.perf::after {
   padding: 0 3px;
   background: var(--film);
   font: 500 clamp(7px, calc(var(--fw) * 0.055), 10px) / 1 var(--mono);
-  font-style: normal;
   letter-spacing: 0.06em;
   color: var(--on-ink-2);
 }
-.back .perf i {
+.perf::before {
+  content: attr(data-l);
+}
+.perf::after {
+  content: attr(data-r);
+}
+.back .perf::before,
+.back .perf::after {
   background: #231d15;
 }
 
@@ -447,20 +456,27 @@ onBeforeUnmount(() => {
   border: 1px solid rgba(243, 237, 225, 0.16);
   border-radius: 999px;
   background: rgba(23, 19, 14, 0.6);
-  cursor: pointer;
 }
-.film-toggle span {
-  padding: 6px 12px;
+.film-toggle button {
+  min-height: 34px;
+  padding: 0 12px;
+  border: 0;
   border-radius: 999px;
+  background: none;
   font: 12px/1 var(--mono);
   color: var(--on-ink-2);
+  cursor: pointer;
   transition:
     background 0.2s,
     color 0.2s;
 }
-.film-toggle span.on {
+.film-toggle button.on {
   background: var(--on-ink);
   color: var(--ink);
+}
+/* 墨色底上默认的墨色焦点框看不见 */
+.film-toggle button:focus-visible {
+  outline-color: var(--accent);
 }
 
 @media (max-width: 640px) {

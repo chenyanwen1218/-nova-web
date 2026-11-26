@@ -1,16 +1,15 @@
-// 页眉放主要栏目；页脚放全部页面
+// 页眉放主要栏目；页脚再加上各个演示页面
 export const navLinks = [
-  { to: '/buddies', label: '助手' },
-  { to: '/gallery', label: '影像' },
-  { to: '/reading', label: '阅读驾驶舱' },
-  { to: '/fluid-glass', label: '流体玻璃' },
-  { to: '/pricing', label: '方案' },
+  { to: '/#work', label: '作品' },
+  { to: '/services', label: '服务' },
   { to: '/about', label: '关于' },
+  { to: '/contact', label: '联系' },
 ] as const
 
 export const footerLinks = [
   ...navLinks,
-  { to: '/faq', label: '常见问题' },
-  { to: '/changelog', label: '更新日志' },
-  { to: '/contact', label: '联系我们' },
+  { to: '/reading', label: '阅读驾驶舱' },
+  { to: '/fluid-glass', label: '流体玻璃' },
+  { to: '/gallery', label: '影像画廊' },
+  { to: '/buddies', label: 'Nova 助手页' },
 ] as const

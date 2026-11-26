@@ -7,6 +7,8 @@ import { queue, ringNotes, stats, timelineBars, timelineDays, today } from '@/da
 import type { NoteStatus } from '@/data/reading'
 
 const STORE_KEY = 'nova-reading-cockpit'
+// 速度按这个顺序循环；读取存档时也只认这几档
+const SPEEDS = [0.5, 1, 2, 4]
 
 const nav = ['阅读驾驶舱', '未读文件索引', '今日阅读队列', '在读管理', '吸收与沉淀', '智能分析', '扫描记录', '知识图谱', '设置中心']
 const navIcons = ['◉', '▦', '▣', '◫', '♧', '○', '▤', '•', '⚙']
@@ -42,7 +44,22 @@ function flash(msg: string) {
 }
 
 function cycleSpeed() {
-  speed.value = speed.value >= 3 ? 0.5 : speed.value * 2
+  speed.value = SPEEDS[(SPEEDS.indexOf(speed.value) + 1) % SPEEDS.length]
+}
+
+// contenteditable 改的是 DOM 本身：失焦时把文字写回当前笔记，清空了就恢复原文
+function commitEdit(field: 'title' | 'summary', e: FocusEvent) {
+  const el = e.target as HTMLElement
+  const text = el.textContent?.trim() ?? ''
+  if (text) current.value[field] = text
+  else el.textContent = current.value[field]
+}
+
+// 回车结束编辑；输入法组字时的回车是在确认候选词，不能当成提交
+function onEditKey(e: KeyboardEvent) {
+  if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return
+  e.preventDefault()
+  ;(e.target as HTMLElement).blur()
 }
 
 function markRead() {
@@ -53,18 +70,37 @@ function markRead() {
 }
 
 function save() {
-  localStorage.setItem(STORE_KEY, JSON.stringify({ active: active.value, cruise: cruise.value, speed: speed.value }))
-  flash('页面设置已保存')
+  try {
+    localStorage.setItem(STORE_KEY, JSON.stringify({ active: active.value, cruise: cruise.value, speed: speed.value }))
+    flash('页面设置已保存')
+  } catch {
+    flash('保存失败：浏览器禁止了本地存储')
+  }
 }
 
+// 导出当前画面的静态快照。生产构建的样式是 /assets/*.css 外链，离线打开会全部丢失，
+// 所以把当前生效的 CSS 规则内联进去，并去掉脚本和外链样式
 function exportHtml() {
-  const html = '<!doctype html>\n' + document.documentElement.outerHTML
-  const url = URL.createObjectURL(new Blob([html], { type: 'text/html' }))
+  const root = document.documentElement.cloneNode(true) as HTMLElement
+  root.querySelectorAll('script, style, link[rel="stylesheet"], link[rel="modulepreload"]').forEach((n) => n.remove())
+  const css = Array.from(document.styleSheets, (sheet) => {
+    try {
+      return Array.from(sheet.cssRules, (r) => r.cssText).join('\n')
+    } catch {
+      return '' // 跨域样式表读不到规则，跳过
+    }
+  }).join('\n')
+  const style = document.createElement('style')
+  style.textContent = css
+  root.querySelector('head')?.append(style)
+
+  const url = URL.createObjectURL(new Blob(['<!doctype html>\n' + root.outerHTML], { type: 'text/html' }))
   const a = document.createElement('a')
   a.href = url
   a.download = 'reading-cockpit.html'
   a.click()
-  URL.revokeObjectURL(url)
+  // 同步 revoke 在部分浏览器会让下载失败，稍后再释放
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
 
 function fullscreen() {
@@ -78,7 +114,7 @@ onMounted(() => {
     if (s && typeof s === 'object') {
       if (Number.isInteger(s.active) && s.active >= 0 && s.active < notes.value.length) active.value = s.active
       if (typeof s.cruise === 'boolean') cruise.value = s.cruise
-      if ([0.5, 1, 2].includes(s.speed)) speed.value = s.speed
+      if (SPEEDS.includes(s.speed)) speed.value = s.speed
     }
   } catch {
     localStorage.removeItem(STORE_KEY)
@@ -114,8 +150,8 @@ onMounted(() => {
       </div>
     </aside>
 
-    <!-- 中间主区 -->
-    <main class="main">
+    <!-- 中间主区（App.vue 已经包了 <main>，这里不能再嵌套一个） -->
+    <div class="main">
       <header class="top">
         <div>
           <h1>阅读管理</h1>
@@ -161,13 +197,13 @@ onMounted(() => {
             <h2 id="queue-title">阅读队列</h2>
             <small>演示数据</small>
           </div>
-          <div class="tabs" role="tablist">
+          <!-- 这组按钮不切换任何面板，用 tab 角色会让读屏期待方向键和对应面板，改成普通的按下态按钮 -->
+          <div class="tabs" role="group" aria-label="笔记范围">
             <button
               v-for="(t, i) in tabs"
               :key="t"
               type="button"
-              role="tab"
-              :aria-selected="i === currentTab"
+              :aria-pressed="i === currentTab"
               :class="{ on: i === currentTab }"
               @click="currentTab = i"
             >
@@ -220,7 +256,7 @@ onMounted(() => {
             <NoteRing ref="ringRef" v-model:active="active" :notes="notes" :cruise="cruise" :speed="speed" />
           </div>
 
-          <p class="hint">按住拖动卡片环 · 滚轮缩放 · 点击卡片聚焦 <b>{{ current.title }}</b></p>
+          <p class="hint">按住拖动卡片环 · Ctrl + 滚轮缩放 · 点击卡片聚焦 <b>{{ current.title }}</b></p>
 
           <div class="timeline">
             <div class="row-head">
@@ -236,7 +272,7 @@ onMounted(() => {
                 v-for="b in timelineBars"
                 :key="b.label"
                 class="tl-bar"
-                :style="{ gridColumn: `${b.from + 1} / ${b.to + 2}`, background: b.color }"
+                :style="{ gridColumn: `${b.from + 1} / ${b.to + 2}`, background: b.color, color: b.ink }"
               >
                 {{ b.label }}
               </span>
@@ -254,7 +290,7 @@ onMounted(() => {
         <button type="button" class="chip-btn" @click="exportHtml">导出 HTML</button>
         <button type="button" class="chip-btn" @click="fullscreen">全屏</button>
       </div>
-    </main>
+    </div>
 
     <!-- 右侧详情 -->
     <aside class="detail panel" aria-labelledby="detail-title">
@@ -262,11 +298,26 @@ onMounted(() => {
         <h2>✦ 智能详情</h2>
       </div>
       <small class="mono">NOTE-00{{ active + 12 }}-{{ current.count }}</small>
-      <h3 id="detail-title" :contenteditable="editing" :class="{ editable: editing }">
-        {{ current.title }}
+      <!-- 可编辑区按笔记 id 换 key：切换笔记时整块重建，Vue 不会去修补被用户改过的 DOM；回车提交 -->
+      <h3 id="detail-title">
+        <span
+          :key="current.id"
+          :contenteditable="editing ? 'plaintext-only' : 'false'"
+          :class="{ editable: editing }"
+          @blur="commitEdit('title', $event)"
+          @keydown="onEditKey"
+          >{{ current.title }}</span
+        >
         <span class="prio" :class="`p-${current.priority}`">{{ current.priority }}优先级</span>
       </h3>
-      <p class="summary" :contenteditable="editing" :class="{ editable: editing }">{{ current.summary }}</p>
+      <p
+        :key="`summary-${current.id}`"
+        class="summary"
+        :contenteditable="editing ? 'plaintext-only' : 'false'"
+        :class="{ editable: editing }"
+        @blur="commitEdit('summary', $event)"
+        @keydown.enter.prevent="($event.target as HTMLElement).blur()"
+      >{{ current.summary }}</p>
       <dl>
         <dt>负责人</dt>
         <dd><span class="avatar sm">DY</span>{{ current.owner }}</dd>
@@ -311,7 +362,8 @@ onMounted(() => {
   --line: rgba(255, 255, 255, 0.08);
   --t1: #eef2ef;
   --t2: #9aa39e;
-  --t3: #6b736f;
+  /* 原 #6b736f 在面板和底色上只有 3.6–4.1:1，11px 小字需要 4.5:1；现在 4.8–5.5:1 */
+  --t3: #808884;
   --g: #3ddc84;
   --g-deep: #0f3a24;
   display: grid;

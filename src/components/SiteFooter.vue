@@ -1,14 +1,18 @@
 <script setup lang="ts">
+import SiteLink from '@/components/SiteLink.vue'
 import { footerLinks } from '@/data/nav'
+import { siteName } from '@/data/profile'
+
+const year = new Date().getFullYear()
 </script>
 
 <template>
   <footer class="footer">
-    <RouterLink class="logo" to="/"><span class="logo-mark" aria-hidden="true" />Nova</RouterLink>
+    <RouterLink class="logo" to="/"><span class="logo-mark" aria-hidden="true" />{{ siteName }}</RouterLink>
     <nav aria-label="页脚导航">
-      <RouterLink v-for="l in footerLinks" :key="l.to" :to="l.to">{{ l.label }}</RouterLink>
+      <SiteLink v-for="l in footerLinks" :key="l.to" :to="l.to">{{ l.label }}</SiteLink>
     </nav>
-    <span>© 2026 Nova</span>
+    <span>© {{ year }} {{ siteName }}</span>
   </footer>
 </template>
 

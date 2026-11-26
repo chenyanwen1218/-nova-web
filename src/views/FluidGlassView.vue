@@ -82,8 +82,10 @@ async function openPanel() {
   await nextTick()
   panel.value?.focus()
 }
-function closePanel() {
+async function closePanel() {
   open.value = false
+  // 抽屉打开时背景是 inert 的，要等它解除后焦点才能还回去
+  await nextTick()
   opener.value?.focus()
 }
 
@@ -146,7 +148,8 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="fg-page">
-    <header class="fg-toolbar">
+    <!-- 抽屉打开时背景设为 inert：Tab 不会跑到遮罩后面的卡片上 -->
+    <header class="fg-toolbar" :inert="open">
       <RouterLink to="/" class="fg-brand">
         <span class="fg-brand-dot" aria-hidden="true" />
         <span>Nova · 流体玻璃</span>
@@ -156,7 +159,7 @@ onBeforeUnmount(() => {
       </button>
     </header>
 
-    <div class="fg-main">
+    <div class="fg-main" :inert="open">
       <h1 class="fg-heading">阅读指标</h1>
       <p class="fg-lead">鼠标划过卡片可以推动流体，点击卡片调整它的材质。</p>
       <section class="fg-grid" aria-label="指标卡片">
@@ -362,6 +365,10 @@ onBeforeUnmount(() => {
     radial-gradient(circle at 15% 0%, rgba(255, 255, 255, 0.032), transparent 22%),
     #050706;
 }
+/* 全站默认的墨色焦点框在这张深色页上看不见，换成卡片焦点同款青色 */
+.fg-page :focus-visible {
+  outline-color: #5bf6da;
+}
 /* 页面点阵 */
 .fg-page::before {
   content: '';
@@ -445,7 +452,8 @@ onBeforeUnmount(() => {
 }
 .fg-credit {
   margin: 40px 0 0;
-  color: #5f7a73;
+  /* 原 #5f7a73 在 #050706 上约 4.4:1，12px 小字不够 4.5:1 */
+  color: #6f8b83;
   font: 12px/1.5 var(--fg-mono);
 }
 .fg-credit a {

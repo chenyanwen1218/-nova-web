@@ -104,7 +104,10 @@ function onUp() {
   window.setTimeout(() => (moved = false))
 }
 
+// 只在按住 Ctrl/⌘（触控板双指捏合也会带 ctrlKey）时缩放；普通滚轮留给页面滚动，
+// 否则鼠标经过卡片环时整页就滚不动了
 function onWheel(e: WheelEvent) {
+  if (!e.ctrlKey && !e.metaKey) return
   e.preventDefault()
   zoom = Math.min(1.35, Math.max(0.7, zoom - e.deltaY * 0.001))
   apply()
@@ -158,14 +161,8 @@ onBeforeUnmount(() => {
   <div ref="stage" class="ring-stage" :class="{ dragging }" @pointerdown="onDown">
     <ul ref="ring" class="ring" :style="{ '--n': notes.length }" aria-label="笔记目录环">
       <li v-for="(n, i) in notes" :key="n.id" class="slot" :style="{ '--i': i }">
-        <button
-          type="button"
-          class="note"
-          :class="{ on: i === active }"
-          :aria-pressed="i === active"
-          :aria-label="`${n.title}，${n.count} 篇，${n.status}`"
-          @click="pick(i)"
-        >
+        <!-- 名称直接取可见文字（编号、标题、篇数、状态），读屏和语音控制念的都是屏幕上的字 -->
+        <button type="button" class="note" :class="{ on: i === active }" :aria-pressed="i === active" @click="pick(i)">
           <span class="note-head">
             <span>{{ n.id }}</span>
             <i class="note-dot" />

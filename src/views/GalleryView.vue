@@ -33,7 +33,10 @@ function onBackdrop(e: MouseEvent) {
 
     <ul class="grid" aria-label="照片列表">
       <li v-for="(f, i) in films" :key="f.id" :class="{ wide: i % 5 === 0 }">
-        <button type="button" class="thumb" :aria-label="`放大查看：${f.alt}`" @click="open(i)">
+        <!-- 不用 aria-label：名称由「放大查看」+ 图片 alt + 可见的编号和作者组成，
+             手机上常显的编号、作者也在名称里，语音控制说屏幕上的字就能点到 -->
+        <button type="button" class="thumb" @click="open(i)">
+          <span class="sr-only">放大查看：</span>
           <img :src="f.src" :alt="f.alt" loading="lazy" decoding="async" />
           <span class="meta">
             <span class="no">{{ String(i + 1).padStart(2, '0') }}</span>

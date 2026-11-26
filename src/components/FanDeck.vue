@@ -1,16 +1,26 @@
 <script setup lang="ts">
 // 扇形助手卡：进页面时从一叠散开成扇形（只播一次），之后保持展开。
-// 悬停或点击某张卡时它上浮回正；点击可在手机上切换当前助手。
-import { onMounted, ref } from 'vue'
-import type { Buddy } from '@/data/home'
+// 悬停或点击某张卡时它上浮回正；点击可在手机上切换当前卡，下方说明跟着换。
+import { computed, onMounted, ref } from 'vue'
 
-const props = defineProps<{ items: Buddy[] }>()
+interface DeckItem {
+  name: string
+  tag: string
+  emoji: string
+  /** [亮面, 暗面] */
+  colors: [string, string]
+  /** 选中时下方显示的说明，没有就显示 tag */
+  desc?: string
+}
+
+const props = defineProps<{ items: DeckItem[]; label: string }>()
 const mid = (props.items.length - 1) / 2
 
 const spread = ref(false)
 // 入场结束后去掉错峰延迟，避免之后悬停有滞后感
 const settled = ref(false)
 const active = ref(Math.floor(mid))
+const current = computed(() => props.items[active.value])
 
 onMounted(() => {
   // 减少动态效果：直接定在展开状态，不播入场
@@ -28,7 +38,7 @@ onMounted(() => {
   )
 })
 
-function cardStyle(item: Buddy, i: number) {
+function cardStyle(item: DeckItem, i: number) {
   const o = i - mid
   return {
     '--o': o,
@@ -36,19 +46,20 @@ function cardStyle(item: Buddy, i: number) {
     '--c1': item.colors[0],
     '--c2': item.colors[1],
     '--delay': `${Math.abs(o) * 40}ms`,
-    zIndex: i === active.value ? 20 : 10 - Math.abs(o),
+    // z-index 只接受整数：卡片数是偶数时偏移量是 ±0.5、±1.5，小数会被浏览器忽略，叠放顺序就乱了
+    zIndex: i === active.value ? 20 : 10 - Math.round(Math.abs(o) * 2),
   }
 }
 </script>
 
 <template>
   <div class="fan">
-    <ul class="deck" :class="{ spread, settled }" aria-label="Nova 助手">
+    <ul class="deck" :class="{ spread, settled }" :aria-label="label">
       <li v-for="(item, i) in items" :key="item.name" class="slot" :style="cardStyle(item, i)">
         <button
           type="button"
           class="card"
-          :class="{ active: i === active }"
+          :class="{ active: i === active, flip: i > mid }"
           :aria-pressed="i === active"
           @click="active = i"
         >
@@ -61,7 +72,7 @@ function cardStyle(item: Buddy, i: number) {
       </li>
     </ul>
     <p class="caption" aria-live="polite">
-      当前助手 <strong>{{ items[active].name }}</strong> · {{ items[active].tag }}
+      <strong>{{ current.name }}</strong>：{{ current.desc ?? current.tag }}
     </p>
   </div>
 </template>
@@ -83,12 +94,18 @@ function cardStyle(item: Buddy, i: number) {
   list-style: none;
 }
 
+/* 所有槽位都叠在正中间，卡片再各自平移出去。槽位本身是透明的，但默认也接收点击：
+   当前卡的槽位层级最高，会挡住相邻卡片露在中间的部分，点那里点不到卡。所以只让卡片接收点击 */
 .slot {
   position: absolute;
   left: calc(50% - var(--w) / 2);
   bottom: 40px;
   width: var(--w);
   height: var(--h);
+  pointer-events: none;
+}
+.slot > .card {
+  pointer-events: auto;
 }
 
 .card {
@@ -173,11 +190,24 @@ function cardStyle(item: Buddy, i: number) {
   transform: translateY(-6px) rotate(-8deg) scale(1.08);
 }
 
+/* 右半边的卡左侧压在邻卡下面：标题和图标左右镜像，放到露出来的那一侧 */
+.card.flip .card-head {
+  align-items: flex-end;
+  text-align: right;
+}
+.card.flip .card-emoji {
+  right: auto;
+  left: 12px;
+}
+
 .caption {
-  margin: 0;
+  /* 说明可能有两行，固定高度避免切换卡片时下面的内容跳动 */
+  min-height: 3.3em;
+  max-width: 30em;
+  margin: 0 auto;
   text-align: center;
   font-size: 14px;
-  color: var(--text-3);
+  color: var(--text-2);
 }
 .caption strong {
   color: var(--text);
@@ -196,20 +226,34 @@ function cardStyle(item: Buddy, i: number) {
 }
 
 @media (max-width: 640px) {
+  .caption {
+    min-height: 4.95em;
+  }
   .fan {
     --w: 112px;
     --h: 156px;
-    --gap: 46px;
+    /* 间距要留够四个字的标题；跟着屏幕宽度变，360px 宽的手机上也不出界 */
+    --gap: clamp(46px, 17vw, 70px);
     --tilt: 6deg;
+  }
+  .card {
+    padding: 12px;
   }
   .card-head strong {
     font-size: 15px;
   }
+  /* 卡片太窄，标签会被邻卡压住或折成两行；当前卡的说明在下方完整显示 */
   .card-head span {
-    font-size: 11px;
+    display: none;
   }
   .card-emoji {
     font-size: 44px;
+  }
+}
+/* 卡片绕下方很远的一点旋转，倾斜越大，最外侧卡片的上角甩出去越远；320px 宽时会超出屏幕，减小倾斜 */
+@media (max-width: 360px) {
+  .fan {
+    --tilt: 4deg;
   }
 }
 </style>

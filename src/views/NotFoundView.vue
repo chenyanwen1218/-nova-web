@@ -1,9 +1,10 @@
 <template>
-  <main class="nf">
+  <!-- App.vue 已经包了 <main>，这里不能再嵌套一个 -->
+  <div class="nf">
     <h1><span class="mark">404</span></h1>
-    <p>这个页面走丢了，助手们也没找到它。</p>
+    <p>这个页面不存在，可能是链接打错了。</p>
     <RouterLink class="back" to="/">返回首页</RouterLink>
-  </main>
+  </div>
 </template>
 
 <style scoped>

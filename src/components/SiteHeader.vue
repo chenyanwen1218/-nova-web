@@ -1,17 +1,19 @@
 <script setup lang="ts">
-// 全站页眉：吸顶导航，当前页高亮（RouterLink 自动加 router-link-active）
+// 全站页眉：吸顶导航，当前页高亮（RouterLink 自动加 router-link-active；锚点链接不高亮，见 SiteLink）
+import SiteLink from '@/components/SiteLink.vue'
 import { navLinks } from '@/data/nav'
+import { siteName } from '@/data/profile'
 </script>
 
 <template>
   <a class="skip" href="#main">跳到正文</a>
   <header class="nav">
     <div class="nav-inner">
-      <RouterLink class="logo" to="/" aria-label="Nova 首页">
-        <span class="logo-mark" aria-hidden="true" />Nova
+      <RouterLink class="logo" to="/" :aria-label="`${siteName} 首页`">
+        <span class="logo-mark" aria-hidden="true" />{{ siteName }}
       </RouterLink>
       <nav aria-label="主导航">
-        <RouterLink v-for="l in navLinks" :key="l.to" :to="l.to">{{ l.label }}</RouterLink>
+        <SiteLink v-for="l in navLinks" :key="l.to" :to="l.to">{{ l.label }}</SiteLink>
       </nav>
     </div>
   </header>
@@ -91,8 +93,28 @@ nav a.router-link-active {
   background: var(--ink);
 }
 
+/* 手机上栏目多了放不下时可以横向滑动，右侧渐隐提示还有内容（原来六个栏目时「方案」「关于」被裁掉点不到） */
 @media (max-width: 640px) {
+  .nav-inner {
+    gap: 12px;
+    padding: 0 0 0 20px;
+  }
+  .logo {
+    flex: none;
+  }
+  nav {
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    padding-right: 28px;
+    mask-image: linear-gradient(to right, #000 calc(100% - 36px), transparent);
+  }
+  nav::-webkit-scrollbar {
+    display: none;
+  }
   nav a {
+    flex: none;
     padding: 10px;
   }
 }

@@ -33,10 +33,9 @@ const next = computed(() => buddies[(index.value + 1) % buddies.length])
           </ul>
 
           <div class="actions">
-            <button type="button" class="btn btn-primary" disabled title="后端接入后开放">召唤 {{ buddy.name }}</button>
-            <RouterLink class="btn btn-ghost" to="/about">了解进度</RouterLink>
+            <button type="button" class="btn btn-primary" disabled>召唤 {{ buddy.name }}</button>
           </div>
-          <p class="note">后端服务接入后即可使用。</p>
+          <p class="note">这是演示页面，Nova 和它的助手都是虚构的，按钮不能用。</p>
         </div>
       </section>
 

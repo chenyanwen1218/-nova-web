@@ -96,5 +96,6 @@ export const today = 24
 export const timelineBars = [
   { label: '知识吸收闭环 · 7.18 – 7.24', from: 0, to: 6, color: '#3a3f3c' },
   { label: 'Agent Memory · 7.22 – 8.1', from: 4, to: 14, color: '#2b4a3a' },
-  { label: '卡片写作 · 7.26 – 8.6', from: 8, to: 19, color: '#1fae5f' },
+  // 亮绿底上浅色字对比度只有 2.7:1，换深色字
+  { label: '卡片写作 · 7.26 – 8.6', from: 8, to: 19, color: '#1fae5f', ink: '#03170b' },
 ]

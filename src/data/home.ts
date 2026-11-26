@@ -1,4 +1,4 @@
-// 首页的模拟数据。后端上线后可替换为接口返回
+// 演示作品用的数据：Nova 助手页（虚构产品）和莫比乌斯胶片带、影像画廊的照片
 
 export interface Buddy {
   /** 详情页地址里的标识，如 /buddies/orbit */
@@ -87,27 +87,3 @@ export const films: FilmFrame[] = [
   { id: '1069', author: 'Marat Gilyadzinov', alt: '深蓝海水中的橙色水母' },
   { id: '110', author: 'Kenneth Thewissen', alt: '日落时草原上的几棵树' },
 ].map((f) => ({ ...f, src: filmSrc(f.id) }))
-
-export interface Feature {
-  title: string
-  desc: string
-}
-
-export const features: Feature[] = [
-  { title: '轻量', desc: '核心交互全部用原生 CSS 实现，不引入重型动画库，首屏更快。' },
-  { title: '一致', desc: '配色、间距、圆角统一成设计变量，整站风格一次定下来。' },
-  { title: '可扩展', desc: '页面由独立组件拼装，后端接口就绪后即可替换模拟数据。' },
-]
-
-export interface Milestone {
-  when: string
-  title: string
-  done: boolean
-}
-
-export const roadmap: Milestone[] = [
-  { when: '2026 Q3', title: '视觉与交互定稿', done: true },
-  { when: '2026 Q4', title: '前端预览版上线', done: true },
-  { when: '2027 Q1', title: '后端服务接入，助手可用', done: false },
-  { when: '2027 Q2', title: '开放公测', done: false },
-]

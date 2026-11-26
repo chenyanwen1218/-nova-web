@@ -1,49 +1,59 @@
 <script setup lang="ts">
-// 后端尚未部署，首页使用 src/data/home.ts 的模拟数据；接口封装保留在 src/api/system.ts
+// 作品集首页：首屏说清楚做什么，下面是能直接上手试的作品。文案在 src/data/profile.ts 和 src/data/work.ts
+import ContactCta from '@/components/ContactCta.vue'
 import FanDeck from '@/components/FanDeck.vue'
 import FilmBand from '@/components/FilmBand.vue'
-import { buddies, features, films } from '@/data/home'
+import SiteLink from '@/components/SiteLink.vue'
+import { films } from '@/data/home'
+import { profile, services } from '@/data/profile'
+import { works } from '@/data/work'
 </script>
 
 <template>
   <div class="container">
-    <!-- 首屏：左侧大标题，右侧直接展示助手扇形卡 -->
+    <!-- 首屏：左侧一句话说清楚做什么，右侧扇形卡就是能接的几类活 -->
     <section class="hero" aria-labelledby="hero-title">
       <div class="hero-copy">
-        <span class="pill"><span class="pill-dot" aria-hidden="true" />预览版</span>
-        <h1 id="hero-title">
-          Pick Your Buddy,
-          <span class="mark">Light Up</span> Your Day.
-        </h1>
-        <p class="lead">五个性格不同的助手，挑一个顺手的，让每天的工作轻一点。</p>
+        <h1 id="hero-title">{{ profile.headline }}</h1>
+        <p class="lead">{{ profile.summary }}</p>
         <div class="actions">
-          <RouterLink class="btn btn-primary" to="/buddies">认识助手</RouterLink>
-          <RouterLink class="btn btn-ghost" to="/about">了解更多</RouterLink>
+          <RouterLink class="btn btn-primary" to="/contact">聊聊你的项目</RouterLink>
+          <SiteLink class="btn btn-ghost" to="/#work">看看作品</SiteLink>
         </div>
       </div>
       <div class="hero-deck">
-        <FanDeck :items="buddies" />
+        <FanDeck :items="services" label="能接的活" />
       </div>
     </section>
 
-    <!-- 墨色反转带：莫比乌斯胶片带，点击照片在中央立起 -->
-    <section class="band" aria-label="影像胶片带">
+    <!-- 墨色反转带：莫比乌斯胶片带本身就是一件作品 -->
+    <section class="band" aria-label="作品：莫比乌斯胶片带">
       <FilmBand :items="films" />
       <div class="band-more">
-        <RouterLink to="/gallery">查看全部影像 →</RouterLink>
+        <RouterLink to="/gallery">打开影像画廊</RouterLink>
       </div>
     </section>
 
-    <!-- 特性：横排条目，不用卡片 -->
-    <section class="features" aria-labelledby="features-title">
-      <h2 id="features-title">好看，也要好用。</h2>
+    <section id="work" class="work" aria-labelledby="work-title">
+      <h2 id="work-title">能直接打开试的作品</h2>
       <ul class="rows">
-        <li v-for="f in features" :key="f.title" class="row">
-          <h3>{{ f.title }}</h3>
-          <p>{{ f.desc }}</p>
+        <li v-for="w in works" :key="w.slug" class="row">
+          <h3>{{ w.title }}</h3>
+          <div class="work-body">
+            <p>{{ w.summary }}</p>
+            <ul class="points">
+              <li v-for="pt in w.points" :key="pt">{{ pt }}</li>
+            </ul>
+            <ul class="stack" :aria-label="`${w.title}用到的技术`">
+              <li v-for="s in w.stack" :key="s">{{ s }}</li>
+            </ul>
+            <RouterLink v-if="w.to" class="btn btn-ghost" :to="w.to">{{ w.cta }}</RouterLink>
+          </div>
         </li>
       </ul>
     </section>
+
+    <ContactCta />
   </div>
 </template>
 
@@ -57,19 +67,13 @@ import { buddies, features, films } from '@/data/home'
   min-height: calc(100dvh - var(--nav-h));
   padding: 56px 0 72px;
 }
-.pill-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 2px var(--ink);
-}
+/* 中文大字：负字距会让字挤在一起，行高也要比英文大 */
 h1 {
-  margin: 24px 0 20px;
-  font-size: clamp(44px, 7.2vw, 96px);
+  margin: 0 0 20px;
+  font-size: clamp(40px, 5.4vw, 76px);
   font-weight: 800;
-  line-height: 0.95;
-  letter-spacing: -0.045em;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
 }
 .actions {
   margin-top: 36px;
@@ -95,17 +99,58 @@ h1 {
 .band-more a:hover {
   color: var(--accent);
 }
-
-/* 特性：一列横排条目 */
-.features {
-  padding: 120px 0 96px;
+/* 墨色底上全站默认的墨色焦点框看不见，换成主色 */
+.band :focus-visible {
+  outline-color: var(--accent);
 }
-.features h2 {
+
+/* 间距放在 margin 上：点「作品」滚到这一段时，标题紧贴在吸顶导航下面，而不是隔着一大片空白 */
+.work {
+  margin-top: 96px;
+  padding: 24px 0 48px;
+}
+.work h2 {
   margin: 0 0 48px;
   font-size: clamp(32px, 4.4vw, 56px);
   font-weight: 800;
-  line-height: 1.02;
-  letter-spacing: -0.035em;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.work-body {
+  display: grid;
+  justify-items: start;
+  gap: 16px;
+}
+.points {
+  max-width: 34em;
+  margin: 0;
+  padding-left: 1.2em;
+  /* 嵌在列表里的列表默认是空心圆点 */
+  list-style: disc;
+  font-size: 15px;
+  color: var(--text-2);
+}
+.points li + li {
+  margin-top: 4px;
+}
+.stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.stack li {
+  padding: 2px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.work-body .btn {
+  min-height: 44px;
+  margin-top: 4px;
 }
 
 @media (max-width: 900px) {
@@ -117,8 +162,9 @@ h1 {
   }
 }
 @media (max-width: 640px) {
-  .features {
-    padding: 72px 0 64px;
+  .work {
+    margin-top: 48px;
+    padding-bottom: 32px;
   }
 }
 </style>
